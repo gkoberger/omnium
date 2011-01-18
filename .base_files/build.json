@@ -1,0 +1,8 @@
+{
+    'name': '',
+    'description': ''
+    'author': '',
+    'js_load': [],
+    'css_load': [],
+    'included_urls': []
+}

@@ -1,0 +1,7 @@
+{
+    "name": "Change Google BG Red + Add Banner",
+    "description": "A test add-on to see if it works.",
+    "author": "Gregory Koberger",
+    "load_order": ["style.css", "jquery-1.4.4.min.js", "script.js"],
+    "included_urls": ["http://*.google.com/*"]
+}
