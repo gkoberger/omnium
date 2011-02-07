@@ -1,0 +1,8 @@
+body {
+    background-color: red;
+}
+
+body > div:first-child {
+    background-color: blue;
+    color: #fff;
+}

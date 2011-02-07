@@ -1,7 +1,15 @@
 {
-    "name": "Change Google BG Red + Add Banner",
-    "description": "A test add-on to see if it works.",
-    "author": "Gregory Koberger",
-    "load_order": ["style.css", "jquery-1.4.4.min.js", "script.js"],
-    "included_urls": ["http://*.google.com/*"]
+    "description": "This is a description", 
+    "author": "Gregory Koberger", 
+    "jetpack_id": "jid0-QmQecFYc36UBQigLyKHGMoYq6d8", 
+    "namespace": "http://thiswillbesomethingsoon.com", 
+    "load_order": [
+        "jquery.min.js", 
+        "script.js", 
+        "style.css"
+    ], 
+    "included_urls": [
+        "http://www.google.com/*"
+    ], 
+    "name": "Make Googles bg red"
 }

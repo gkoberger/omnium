@@ -1,34 +1,15 @@
-LOADING FILES
+Steps to create a cross browser plugin:
 
-If you want to target a specific framework, prefixing a css or js file with
-"targetname_" will result in it only being included for the specific browser.
+  1. Create a new project folder.
+     `new_project [project name]`
+  2. Fill out the build.json file.
+  3. Add .js and .css files to /includes/ (Note: if you need them to be loaded
+     in a particular order, use `load_order` in build.json)
+  4. Run the build command from the main directory.
+     `python builder.py [project name]`
 
-The following targets are recognized:
+Right now it's fragile and a lot won't work- this is only v0.1.
 
- - "jetpack_" (FireFox 4+)
- - "userscript_" (Firefox < 3.6 + Greasemonkey/Scriptish)
- - "chrome_" (Google Chrome)
- - "ie_" (Internet Explorer bookmarklet)
- - "safari_" (Safari)
- - "opera_" (Opera)
+Currently only supports Greasemonkey (Fx3.6) and Jetpack (Fx4). Chrome support coming soon.
 
-CSS must end in .css, JavaScript must end in .js.  All other files are ignored.
-
-LOAD ORDER
-
-If no load order is specified in the build.json (aka, it's left as []), the
-following rules are used to determine the order they will be included (files
-are identified by filenames, not content):
-
- 1. Frameworks recognized by the Google Library API are loaded first (jQuery,
-    MooTools, etc); ordered alphabetically.
- 2. Plugins are loaded next; ordered alphabetically. Any files that match the
-    following regex are considered plugins:
-    [\w\d]*\.[\w][\w\d]{3,}\.(css|js)
- 3. Lastly, any other files are loaded; ordered alphabetically.
-
-If no order is specified, all CSS is loaded before JavaScript.  When loading
-things alphabetically, the target prefix ("jetpack_", etc) is ignored.
-
-It is recommended, however, that you specify the order of files in build.json if
-you have more than one or two files, to prevent ambiguity.
+Questions: gkoberger [at] mozilla [dot] com

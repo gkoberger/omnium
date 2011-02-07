@@ -1,8 +1,8 @@
 {
-    'name': '',
-    'description': ''
-    'author': '',
-    'js_load': [],
-    'css_load': [],
-    'included_urls': []
+    "name": "",
+    "description": "",
+    "author": "",
+    "namespace": "",
+    "load_order": [],
+    "included_urls": []
 }
