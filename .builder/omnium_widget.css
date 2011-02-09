@@ -1,0 +1,65 @@
+a.omnium_addon {
+    text-decoration: none;
+    display: inline-block;
+    border: 1px solid #305e2a;
+    padding: 10px;
+    margin: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+
+    -moz-box-shadow: 0 0 6px #666, inset 0 0 1px #d1e8cf;
+    -webkit-box-shadow: 0 0 6px #666, inset 0 0 1px #d1e8cf;
+    box-shadow: 0 0 6px #666, inset 0 0 1px #d1e8cf;
+
+    background-image: -webkit-gradient(
+                            linear,
+                            left bottom,
+                            left top,
+                            color-stop(0, rgb(65,128,58)),
+                            color-stop(0.65, rgb(120,176,104)) );
+    background-image: -moz-linear-gradient(
+                            center bottom,
+                            rgb(65,128,58) 0%,
+                            rgb(120,176,104) 65% );
+    text-shadow: 1px 1px 1px #305e2a;
+    color: #d1e8cf;
+    font-family: Verdana, Arial, Sans-Serif;
+    font-size: 10px;
+}
+
+a.omnium_addon:hover {
+    color: #fff;
+    background-image: -webkit-gradient(
+                            linear,
+                            left bottom,
+                            left top,
+                            color-stop(0, rgb(53,110,45)),
+                            color-stop(0.65, rgb(105,161,88)) );
+    background-image: -moz-linear-gradient(
+                            center bottom,
+                            rgb(53,110,45) 0%,
+                            rgb(105,161,88) 65% );
+}
+
+a.omnium_addon strong {
+    font-weight: bold;
+}
+
+a.omnium_addon h3 {
+    margin: 0;
+    color: #d1e8cf;
+    font-style: italic;
+    font-size: 15px;
+    font-weight: normal;
+    font-family: Garamond, Georgia, Serif;
+}
+
+a.omnium_addon h3 strong {
+    color: #FFF;
+    font-style: normal;
+    font-size: 23px;
+    font-weight: bold;
+}
+

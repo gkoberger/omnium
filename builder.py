@@ -1,4 +1,4 @@
-import json, os, os.path, shutil, sys, re
+import json, os, os.path, shutil, sys, re, webbrowser
 
 from subprocess import Popen, PIPE
 
@@ -38,9 +38,7 @@ def _get_files(target):
 def greasemonkey():
     files = _get_files("greasemonkey")
 
-    os.makedirs('%s/output/greasemonkey/' % folder)
-
-    output = '%s/output/greasemonkey/%s.user.js' % (folder, folder)
+    output = '%s/output/omnium/%s.user.js' % (folder, folder)
 
     print 'GENERATING GREASEMONKEY SCRIPT'
 
@@ -94,14 +92,14 @@ def jetpack():
 
     # TODO: Make sure this is always lowercase
 
+    output = '%s/output/omnium/%s.xpi' % (folder, folder)
+
     # Create the folder (use `_` to avoid collision).
     jp_folder = '.builder/jetpack-sdk/_%s/' % folder
     os.makedirs(jp_folder)
     os.makedirs('%s/data/' % jp_folder)
     os.makedirs('%s/lib' % jp_folder)
     os.makedirs('%s/tests' % jp_folder)
-
-    os.makedirs('%s/output/jetpack/' % folder)
 
     # Copy bootstrap.js
     shutil.copyfile('.builder/omnium_bootstrap.js', '%s/data/omnium_bootstrap.js' % jp_folder)
@@ -176,7 +174,7 @@ def jetpack():
             # TODO: This assumes no errors, which is way too optomistic
             print '  + Generated xpi'
 
-            shutil.copyfile('.builder/jetpack-sdk/_%s.xpi' % folder, '%s/output/jetpack/%s.xpi' % ((folder,)*2))
+            shutil.copyfile('.builder/jetpack-sdk/_%s.xpi' % folder, output)
             print '  + Copied to %s.xpi' % folder
 
     # Generate using the sdk
@@ -185,7 +183,7 @@ def jetpack():
     generate_xpi()
 
     print ''
-    print '  Outputted to %s/output/jetpack/%s.xpi!' % (folder, folder)
+    print '  Outputted to %s!' % output
     print ''
     print ''
 
@@ -231,6 +229,26 @@ def compress_css(css):
 
     return output
 
+def widget():
+    print 'GENERATING SITE WIDGET'
+
+    print '  Creating files...'
+    with open(".builder/index.html") as index_in:
+        with open("%s/output/index.html" % folder, 'w') as index_out:
+            index_out.write(index_in.read() % settings)
+            print '  + index.html'
+
+    shutil.copyfile('.builder/omnium_widget.js', '%s/output/omnium/omnium_widget.js' % folder)
+    print '  + omnium_widget.js'
+
+    shutil.copyfile('.builder/omnium_widget.css', '%s/output/omnium/omnium_widget.css' % folder)
+    print '  + omnium_widget.css'
+
+    # TODO: Allow user to disable this/chose browser
+    # TODO: Use webbrowser instead
+    print ''
+    print '  Opening in browser!'
+    os.system('open %s/output/index.html' % folder)
 
 def main():
     # Remove the output.
@@ -240,12 +258,17 @@ def main():
     jp_folder = '.builder/jetpack-sdk/_%s' % folder
     shutil.rmtree(jp_folder, True)
 
+    # Make the output foder
+    os.makedirs('%s/output/omnium/' % folder)
+
     greasemonkey()
     jetpack()
+    widget()
 
 if __name__ == '__main__':
     folder = sys.argv[1]
     settings = json.load(open('%s/build.json' % folder))
+    settings['folder'] = folder
     main()
 
 

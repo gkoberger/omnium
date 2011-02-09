@@ -1,15 +1,16 @@
 {
-    "description": "This is a description", 
-    "author": "Gregory Koberger", 
-    "jetpack_id": "jid0-QmQecFYc36UBQigLyKHGMoYq6d8", 
-    "namespace": "http://thiswillbesomethingsoon.com", 
+    "description": "This is a description",
+    "author": "Gregory Koberger",
+    "jetpack_id": "jid0-QmQecFYc36UBQigLyKHGMoYq6d8",
+    "namespace": "http://thiswillbesomethingsoon.com",
     "load_order": [
-        "jquery.min.js", 
-        "script.js", 
+        "jquery.min.js",
+        "script.js",
         "style.css"
-    ], 
+    ],
     "included_urls": [
         "http://www.google.com/*"
-    ], 
-    "name": "Make Googles bg red"
+    ],
+    "name": "Make Googles bg red",
+    "version": "1.0"
 }
