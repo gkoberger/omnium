@@ -1,7 +1,7 @@
 Steps to create a cross browser plugin:
 
   1. Create a new project folder.
-     `new_project [project name]`
+     `./new_project.sh`
   2. Fill out the build.json file.
   3. Add .js and .css files to /includes/ (Note: if you need them to be loaded
      in a particular order, use `load_order` in build.json)
@@ -13,3 +13,16 @@ Right now it's fragile and a lot won't work- this is only v0.1.
 Currently only supports Greasemonkey (Fx3.6) and Jetpack (Fx4). Chrome support coming soon.
 
 Questions: gkoberger [at] mozilla [dot] com
+
+=============================================================================
+
+TROUBLESHOOTING:
+
+- Make sure you have Python 2.5 or 2.6 installed
+- Make sure new_project.sh has the proper permissions (`chmod u+x new_project.sh`)
+- Probably only works in OSX right now
+- Make sure you init and update the submodules
+- Jetpack .xpi's will only run in Fx4+; 3.6 requires Greasemonkey
+- A majority of errors will be because of weird jetpack stuff; try running
+  the jetpack stuff inside .builder/jetpack-sdk manually.  Eventually most
+  of these problems will go away.
