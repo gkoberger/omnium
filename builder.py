@@ -20,12 +20,13 @@ def _get_files(target):
     # If none is specified, do it ourselves.
     else:
         # TODO: This should be sorted per the README.
-        dirList = os.listdir('includes')
+        dirList = os.listdir('%s/includes' % folder)
         for fname in dirList:
             if fname.endswith('js') or fname.endswith('css'):
                 files.append(fname)
 
     files_clean = []
+
     # Strip out targeted files for other targets.
     for f in files:
         for t in targets:
@@ -79,6 +80,9 @@ def greasemonkey():
 
             print '  + %s' % f
 
+        with open(".builder/greasemonkey/footer.js") as footer:
+            o.write(footer.read() % settings_extended)
+
     print ''
     print '  Outputted to %s!' % output
     print ''
@@ -92,6 +96,8 @@ def jetpack():
 
     # TODO: Make sure this is always lowercase
 
+    folder_out = folder.lower()
+
     output = '%s/output/omnium/%s.xpi' % (folder, folder)
 
     # Create the folder (use `_` to avoid collision).
@@ -100,6 +106,10 @@ def jetpack():
     os.makedirs('%s/data/' % jp_folder)
     os.makedirs('%s/lib' % jp_folder)
     os.makedirs('%s/tests' % jp_folder)
+
+    # Copy jetpack_wrapper.js
+    shutil.copyfile('.builder/jetpack/wrapper.js', '%s/data/jetpack_bootstrap.js' % jp_folder)
+    print '  + omnium_bootstrap.js'
 
     # Copy bootstrap.js
     shutil.copyfile('.builder/omnium_bootstrap.js', '%s/data/omnium_bootstrap.js' % jp_folder)
@@ -126,6 +136,7 @@ def jetpack():
     package_json['fullName'] = settings['name']
     package_json['description'] = settings['description']
     package_json['author'] = settings['author']
+    package_json['version'] = settings['version']
 
     if "jetpack_id" in settings:
         package_json['id'] = settings['jetpack_id']
@@ -138,7 +149,7 @@ def jetpack():
 
     included = "[%s]" % (', '.join(['"%s"' % url for url in settings['included_urls']]))
     # TODO: Deal with mulitple *'s in included URLs.
-    files_include = ["omnium_bootstrap.js"] + files
+    files_include = ["omnium_bootstrap.js", "jetpack_bootstrap.js"] + files
     scripts = "[%s]" % (", ".join(["data.url(\"%s\")" % f for f in files_include]))
 
     main_vars = dict(included=included, scripts=scripts)
@@ -160,9 +171,9 @@ def jetpack():
             # We need to save the ID for next time
             print "  + Creating a new key (first run)"
 
-            with open('_%s/package.json' % folder) as json_file:
+            with open('.builder/jetpack-sdk/_%s/package.json' % folder) as json_file:
                 package_json = json.load(json_file)
-                with open('../../%s/build.json' % folder, 'r+') as build_file:
+                with open('%s/build.json' % folder, 'r+') as build_file:
                     build_json = json.load(build_file)
                     build_json['jetpack_id'] = package_json['id']
 
@@ -244,7 +255,7 @@ def widget():
     shutil.copyfile('.builder/omnium_widget.css', '%s/output/omnium/omnium_widget.css' % folder)
     print '  + omnium_widget.css'
 
-    # TODO: Allow user to disable this/chose browser
+    # TODO: Allow user to disable this/choose browser
     # TODO: Use webbrowser instead
     print ''
     print '  Opening in browser!'
