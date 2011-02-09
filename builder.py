@@ -20,7 +20,7 @@ def _get_files(target):
     # If none is specified, do it ourselves.
     else:
         # TODO: This should be sorted per the README.
-        dirList = os.listdir('includes')
+        dirList = os.listdir('%s/includes' % folder)
         for fname in dirList:
             if fname.endswith('js') or fname.endswith('css'):
                 files.append(fname)
@@ -160,9 +160,9 @@ def jetpack():
             # We need to save the ID for next time
             print "  + Creating a new key (first run)"
 
-            with open('_%s/package.json' % folder) as json_file:
+            with open('.builder/jetpack-sdk/_%s/package.json' % folder) as json_file:
                 package_json = json.load(json_file)
-                with open('../../%s/build.json' % folder, 'r+') as build_file:
+                with open('%s/build.json' % folder, 'r+') as build_file:
                     build_json = json.load(build_file)
                     build_json['jetpack_id'] = package_json['id']
 
