@@ -137,6 +137,7 @@ def jetpack():
     package_json['description'] = settings['description']
     package_json['author'] = settings['author']
     package_json['version'] = settings['version']
+    package_json['preferences'] = settings['preferences']
 
     if "jetpack_id" in settings:
         package_json['id'] = settings['jetpack_id']
@@ -147,7 +148,10 @@ def jetpack():
 
     # Create a main.js file
 
-    included = "[%s]" % (', '.join(['"%s"' % url for url in settings['included_urls']]))
+    included = settings['included_urls']
+    if not isinstance(settings['included_urls'], basestring):
+        included = "[%s]" % (', '.join(['"%s"' % url for url in settings['included_urls']]))
+
     # TODO: Deal with mulitple *'s in included URLs.
     files_include = ["omnium_bootstrap.js", "jetpack_bootstrap.js"] + files
     scripts = "[%s]" % (", ".join(["data.url(\"%s\")" % f for f in files_include]))
@@ -156,6 +160,7 @@ def jetpack():
     with open(".builder/jetpack/main.js") as main_out:
         with open("%s/lib/main.js" % jp_folder, 'w') as main_in:
             main_in.write(main_out.read() % main_vars)
+
     print '  + main.js'
 
     def generate_xpi():

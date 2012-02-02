@@ -1,5 +1,7 @@
 var pageMod = require("page-mod"),
-    ss = require("simple-storage");
+    ss = require("simple-storage"),
+    prefs = require("simple-prefs");
+
 const data = require("self").data;
 
 // Message Handling
@@ -33,15 +35,23 @@ function handleMessage(m) {
     }
 }
 
-pageMod.PageMod({
-  include: %(included)s,
-  contentScriptWhen: "ready",
-  contentScriptFile: %(scripts)s,
-  onAttach: function onAttach(worker, mod) {
-    // Register the handleMessage function as a listener
-    worker.on('message', handleMessage);
-    // Take a reference to the worker so as to post messages back to it
-    myWorker = worker;
-  },
-});
+var pgmd = false;
+function initPageMod() {
+    if(pgmd) {
+        pgmd.destroy();
+    }
+    pgmd = pageMod.PageMod({
+      include: %(included)s,
+      contentScriptWhen: "ready",
+      contentScriptFile: %(scripts)s,
+      onAttach: function onAttach(worker, mod) {
+        // Register the handleMessage function as a listener
+        worker.on('message', handleMessage);
+        // Take a reference to the worker so as to post messages back to it
+        myWorker = worker;
+      },
+    });
+}
 
+prefs.on("urls", initPageMod);
+initPageMod();
