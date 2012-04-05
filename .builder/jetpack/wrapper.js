@@ -42,6 +42,13 @@ var omniumWrapper = function(){
         }
     }
     this.storage = new Storage();
+
+    this.getImage = function(url, callback) {
+        var cid = randomNum();
+        callbacks[cid] = callback;
+        postMessage({'cid': cid, 'action': 'image_get', 'url': url});
+    }
+
     on('message', function(r) {
         var cid = r.cid,
             message = undefined;
@@ -50,7 +57,11 @@ var omniumWrapper = function(){
             message = r.message;
         }
 
-        callbacks[cid](message);
+        if(r.image != 'undefined') {
+            message = 'data:image/'+r.image+';base64,' + unsafeWindow.btoa(message);
+        }
+
+        callbacks[cid].call(unsafeWindow, message);
     });
 
 };

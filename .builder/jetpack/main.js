@@ -1,6 +1,7 @@
 var pageMod = require("page-mod"),
     ss = require("simple-storage"),
-    prefs = require("simple-prefs");
+    prefs = require("simple-prefs"),
+    xhr = require("xhr");
 
 const data = require("self").data;
 
@@ -32,6 +33,39 @@ function handleMessage(m) {
 
         var m = {'message': to_return, 'cid': cid};
         myWorker.postMessage(m);
+    }
+    if(m.action == "image_get") {
+
+
+        function uint8ToString(buf) {
+            var i, length, out = '';
+            for (i = 0, length = buf.length; i < length; i += 1) {
+                out += String.fromCharCode(buf[i]);
+            }
+            return out;
+        }
+
+        var req = new xhr.XMLHttpRequest(),
+            image_filename = m.url.split('.'),
+            image_type = image_filename[image_filename.length - 1];
+
+        req.open("GET", m.url, true);
+        req.overrideMimeType("text/plain; charset=x-user-defined");
+        req.onreadystatechange = function() {
+           if (req.readyState == 4) {
+              if (req.status == 200) {
+                 var tmp = req.responseText;
+
+                 var length = tmp.length;
+                 var data = new Uint8Array(length);
+                 for (var i=0; i<length; ++i)
+                    data[i] = tmp.charCodeAt(i);
+                 myWorker.postMessage({'cid': cid, 'message': uint8ToString(data), 'image': image_type});
+              }
+           }
+        };
+        req.send(null);
+
     }
 }
 
