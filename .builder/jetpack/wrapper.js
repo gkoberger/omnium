@@ -57,11 +57,11 @@ var omniumWrapper = function(){
             message = r.message;
         }
 
-        if(r.image != 'undefined') {
+        if(r.image) {
             message = 'data:image/'+r.image+';base64,' + unsafeWindow.btoa(message);
         }
 
-        callbacks[cid].call(unsafeWindow, message);
+        callbacks[cid](message);
     });
 
 };

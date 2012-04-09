@@ -34,9 +34,8 @@ function handleMessage(m) {
         var m = {'message': to_return, 'cid': cid};
         myWorker.postMessage(m);
     }
+
     if(m.action == "image_get") {
-
-
         function uint8ToString(buf) {
             var i, length, out = '';
             for (i = 0, length = buf.length; i < length; i += 1) {
@@ -65,7 +64,6 @@ function handleMessage(m) {
            }
         };
         req.send(null);
-
     }
 }
 
