@@ -25,7 +25,7 @@ var omniumWrapper = function(){
             }
 
             callbacks[cid] = callback;
-            postMessage(message);
+            self.postMessage(message);
         }
 
         this.request = function(keys, callback) {
@@ -34,7 +34,7 @@ var omniumWrapper = function(){
             var cid = randomNum();
 
             callbacks[cid] = callback;
-            postMessage({'cid': cid, 'action': 'storage_get', 'keys': keys});
+            self.postMessage({'cid': cid, 'action': 'storage_get', 'keys': keys});
         }
 
         this.remove = function(name) {
@@ -46,10 +46,10 @@ var omniumWrapper = function(){
     this.getImage = function(url, callback) {
         var cid = randomNum();
         callbacks[cid] = callback;
-        postMessage({'cid': cid, 'action': 'image_get', 'url': url});
+        self.postMessage({'cid': cid, 'action': 'image_get', 'url': url});
     }
 
-    on('message', function(r) {
+    self.on('message', function(r) {
         var cid = r.cid,
             message = undefined;
 
