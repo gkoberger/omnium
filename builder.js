@@ -19,7 +19,7 @@ var argv = Optimist
     .describe("target", "The target to build. Possible options are:\n"
                       + "- \"jetpack\", to only build the Jetpack/ add-on SDK target.\n"
                       + "- \"greasemonkey\", to only build the Greasemonkey target.\n"
-                      + "- \"all\", to build the Jetpack, Greasemonkey AND widget targets.")
+                      + "- \"all\", to build the Jetpack AND Greasemonkey targets.")
     .describe("open", "Open the installer web page when the build has finished.")
 
     .alias("m", "minify-js")
