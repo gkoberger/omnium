@@ -8,10 +8,35 @@ var Exec = require("child_process").exec;
 var Mkdirp = require("mkdirp");
 var Sqwish = require("sqwish");
 var UglifyJS = require("uglify-js");
+var Optimist = require("optimist");
 
-var argv = require("optimist").argv;
 var FILETYPE_PATTERN = /js|css$/;
 var TARGETS = ["jetpack", "greasemonkey"];
+
+var argv = Optimist
+    .usage("$0 [options] [project]")
+    .describe("minify-js", "Minify Javascript that is embedded in the generated add-ons. Default is FALSE.")
+    .describe("target", "The target to build. Possible options are:\n"
+                      + "- \"jetpack\", to only build the Jetpack/ add-on SDK target.\n"
+                      + "- \"greasemonkey\", to only build the Greasemonkey target.\n"
+                      + "- \"all\", to build the Jetpack, Greasemonkey AND widget targets.")
+    .describe("open", "Open the installer web page when the build has finished.")
+
+    .alias("m", "minify-js")
+    .alias("t", "target")
+    .alias("o", "open")
+
+    .boolean("minify-js")
+    .boolean("open")
+    .string("targets")
+
+    .default("minify-js", false)
+    .default("target", "all")
+    .default("open", true)
+
+    .wrap(80)
+
+    .argv;
 
 var rmTree = function(path) {
     if (!Fs.existsSync(path))
@@ -122,7 +147,7 @@ function greasemonkey(settings) {
     	var ext = Path.extname(file);
     	if (ext == ".css")
     		content = Sqwish.minify(content);
-    	else if (ext == ".js")
+    	else if (ext == ".js" && settings.minifyJS)
     		content = UglifyJS.minify(content, {fromString: true}).code;
     	data.push(content);
     	console.log("\t+ " + file);
@@ -176,7 +201,7 @@ function jetpack(settings, callback) {
     	var ext = Path.extname(file);
     	if (ext == ".css")
     		content = "omnium_addCss('" + Sqwish.minify(content) + "');";
-    	else if (ext == ".js")
+    	else if (ext == ".js" && settings.minifyJS)
     		content = UglifyJS.minify(content, {fromString: true}).code;
     	Fs.writeFileSync(Path.join(jp_folder, "data", file), content, "utf8");
     	console.log("\t+ " + file);
@@ -284,17 +309,22 @@ function widget(settings) {
     	Path.join(output, "omnium", "omnium_widget.css"));
     console.log("\t+ omnium_widget.css");
 
-    // TODO: Allow user to disable this/choose browser
-    // TODO: Use webbrowser instead
     console.log("\n\tOpening in browser!");
     Exec("open '" + Path.join(output, "index.html") + "'");
 }
 
-function main(folder) {
-	folder = folder.replace(/^[\/\\]+|[\/\\]+$/, "");
+function main(folder, args) {
+	folder = (folder || "").replace(/^[\/\\]+|[\/\\]+$/, "");
+    if (!folder) {
+        console.log(Optimist.help());
+        process.exit(1);
+    }
+
 	// Load settings file
 	var settings = JSON.parse(Fs.readFileSync(Path.join(__dirname, folder, "build.json")));
 	settings.folder = folder;
+    settings.minifyJS = args["minify-js"];
+    settings.openInBrowser = args.open;
 
 	// Remove the output.
     rmTree(Path.join(__dirname, folder, "output"));
@@ -305,13 +335,26 @@ function main(folder) {
     // Make the output foder
     Mkdirp.sync(Path.join(__dirname, folder, "output", "omnium"));
 
-    greasemonkey(settings);
-    jetpack(settings, function(err) {
-    	if (err)
-    		throw err;
+    var target = argv.target;
+    var doAll = (target == "all");
+    if (doAll || target == "greasemonkey")
+        greasemonkey(settings);
+    if (doAll || target == "jetpack")
+        jetpack(settings, done);
+    else
+        done();
 
-    	widget(settings);
-    });
+    function done(err) {
+        if (err)
+            throw err;
+
+        if (settings.openInBrowser)
+            widget(settings);
+    }
 }
 
-main(argv._[0]);
+if (argv.h || argv.help) {
+    console.log(Optimist.help());
+    process.exit(0);
+}
+main(argv._[0], argv);
