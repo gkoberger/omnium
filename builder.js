@@ -15,13 +15,13 @@ var TARGETS = ["jetpack", "greasemonkey"];
 
 var argv = Optimist
     .usage("$0 [options] [project]")
-    .describe("minify-js", "Minify Javascript that is embedded in the generated add-ons. Default is FALSE.")
-    .describe("combine-js", "Combine Javascript files into one. Only applicable for 'jetpack' targets. Default is FALSE")
+    .describe("minify-js", "Minify Javascript that is embedded in the generated add-ons.")
+    .describe("combine-js", "Combine Javascript files into one. Only applicable for 'jetpack' targets.")
     .describe("target", "The target to build. Possible options are:\n"
                       + "- \"jetpack\", to only build the Jetpack/ add-on SDK target.\n"
                       + "- \"greasemonkey\", to only build the Greasemonkey target.\n"
                       + "- \"all\", to build the Jetpack AND Greasemonkey targets.")
-    .describe("open", "Open the installer web page when the build has finished. Default is TRUE")
+    .describe("open", "Open the installer web page when the build has finished.")
 
     .alias("m", "minify-js")
     .alias("c", "combine-js")
