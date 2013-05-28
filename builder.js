@@ -68,7 +68,7 @@ function copyFile(from, to) {
 }
 
 function template(content, replacements) {
-    return content.replace(/\%\((.*)\)s?/g, function(m, tag) {
+    return content.replace(/\%\(([^)]*)\)s?/g, function(m, tag) {
         if (replacements[tag]) {
             return typeof replacements[tag] != "string" 
                 ? JSON.stringify(replacements[tag]) : replacements[tag];
@@ -203,6 +203,7 @@ function jetpack(settings, callback) {
     var filesToInclude = [];
     var cssContent = "";
     var jsContent = "";
+    var featureCount = 0;
     files.forEach(function(file) {
         var content = Fs.readFileSync(Path.join(settings.folder, "includes", file), "utf8");
         var ext = Path.extname(file);
@@ -211,6 +212,9 @@ function jetpack(settings, callback) {
             // CSS files we be combined into one, so we use the escape hatch here
             return;
         } else if (ext == ".js") {
+            // HACK: This is probably way too specific for BugzillaJS :S
+            if (content.indexOf(".addFeature(") > -1)
+                featureCount++;
             if (settings.minifyJS)
                 content = UglifyJS.minify(content, {fromString: true}).code;
             if (settings.combineJS) {
@@ -237,6 +241,22 @@ function jetpack(settings, callback) {
         Fs.writeFileSync(Path.join(jp_folder, "data", jsFile), jsContent, "utf8");
         console.log("\t+ " + jsFile);
     }
+
+    // Process Worker scripts, if any
+    var workers = [];
+    Object.keys(settings.workers).forEach(function(workerFile) {
+        var content = Fs.readFileSync(Path.join(settings.folder, "includes", workerFile), "utf8");
+        // Collect the scripts to embed:
+        var scripts = "";
+        settings.workers[workerFile].forEach(function(workerScript) {
+            scripts += Fs.readFileSync(Path.join(settings.folder, "includes", workerScript), "utf8");
+        });
+        content = template(content, { scripts: scripts });
+        if (settings.minifyJS)
+            content = UglifyJS.minify(content, {fromString: true}).code;
+        Fs.writeFileSync(Path.join(jp_folder, "data", workerFile), content, "utf8");
+        workers.push(workerFile);
+    });
 
     // Generate a build file
     console.log("\tCreating basic build files...");
@@ -266,7 +286,11 @@ function jetpack(settings, callback) {
         }).join(", ") + "]";
     var main_vars = {
         included: included,
-        scripts: scripts
+        scripts: scripts,
+        featurecount: featureCount,
+        workers: "[" + workers.map(function(file) {
+                     return "data.url(\"" + file + "\")";
+                 }).join(", ") + "]"
     }
     var main = Fs.readFileSync(Path.join(__dirname, ".builder", "jetpack", "main.js"), "utf8");
     Fs.writeFileSync(Path.join(jp_folder, "lib", "main.js"), template(main, main_vars), "utf8");

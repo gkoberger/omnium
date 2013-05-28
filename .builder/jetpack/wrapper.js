@@ -47,7 +47,19 @@ var omniumWrapper = function(){
         var cid = randomNum();
         callbacks[cid] = callback;
         self.postMessage({'cid': cid, 'action': 'image_get', 'url': url});
-    }
+    };
+
+    this.invokeWorker = function(name, message, callback) {
+        var cid = randomNum();
+        callbacks[cid] = callback;
+        self.postMessage({'cid': cid, 'action': 'worker_invoke', 'name': name, 'message': message});
+    };
+
+    this.getFeaturesToAdd = function(callback) {
+        var cid = randomNum();
+        callbacks[cid] = callback;
+        self.postMessage({'cid': cid, 'action': 'features_to_add'});
+    };
 
     self.on('message', function(r) {
         var cid = r.cid,
