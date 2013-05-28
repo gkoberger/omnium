@@ -16,21 +16,25 @@ var TARGETS = ["jetpack", "greasemonkey"];
 var argv = Optimist
     .usage("$0 [options] [project]")
     .describe("minify-js", "Minify Javascript that is embedded in the generated add-ons. Default is FALSE.")
+    .describe("combine-js", "Combine Javascript files into one. Only applicable for 'jetpack' targets. Default is FALSE")
     .describe("target", "The target to build. Possible options are:\n"
                       + "- \"jetpack\", to only build the Jetpack/ add-on SDK target.\n"
                       + "- \"greasemonkey\", to only build the Greasemonkey target.\n"
                       + "- \"all\", to build the Jetpack AND Greasemonkey targets.")
-    .describe("open", "Open the installer web page when the build has finished.")
+    .describe("open", "Open the installer web page when the build has finished. Default is TRUE")
 
     .alias("m", "minify-js")
+    .alias("c", "combine-js")
     .alias("t", "target")
     .alias("o", "open")
 
     .boolean("minify-js")
+    .boolean("combine-js")
     .boolean("open")
     .string("targets")
 
     .default("minify-js", false)
+    .default("combine-js", false)
     .default("target", "all")
     .default("open", true)
 
@@ -196,16 +200,43 @@ function jetpack(settings, callback) {
     var files = getFiles(settings, target);
 
     // TODO: Deal with the user using subfolders. Loops and recursion!
+    var filesToInclude = [];
+    var cssContent = "";
+    var jsContent = "";
     files.forEach(function(file) {
         var content = Fs.readFileSync(Path.join(settings.folder, "includes", file), "utf8");
         var ext = Path.extname(file);
-        if (ext == ".css")
-            content = "omnium_addCss('" + Sqwish.minify(content) + "');";
-        else if (ext == ".js" && settings.minifyJS)
-            content = UglifyJS.minify(content, {fromString: true}).code;
+        if (ext == ".css") {
+            cssContent += " " + content;
+            // CSS files we be combined into one, so we use the escape hatch here
+            return;
+        } else if (ext == ".js") {
+            if (settings.minifyJS)
+                content = UglifyJS.minify(content, {fromString: true}).code;
+            if (settings.combineJS) {
+                jsContent += " " + content;
+                // JS files we be combined into one, so we use the escape hatch here
+                return;
+            }
+        }
+        filesToInclude.push(file);
         Fs.writeFileSync(Path.join(jp_folder, "data", file), content, "utf8");
         console.log("\t+ " + file);
     });
+
+    if (cssContent.length) {
+        var cssFile = "omnium_combined.css";
+        filesToInclude.push(cssFile)
+        Fs.writeFileSync(Path.join(jp_folder, "data", cssFile),
+            "omnium_addCss('" + Sqwish.minify(cssContent) + "');", "utf8");
+        console.log("\t+ " + cssFile);
+    }
+    if (settings.combineJS) {
+        var jsFile = "omnium_combined.js";
+        filesToInclude.push(jsFile);
+        Fs.writeFileSync(Path.join(jp_folder, "data", jsFile), jsContent, "utf8");
+        console.log("\t+ " + jsFile);
+    }
 
     // Generate a build file
     console.log("\tCreating basic build files...");
@@ -230,7 +261,7 @@ function jetpack(settings, callback) {
         included = included[0];
     // TODO: Deal with mulitple *'s in included URLs.
     var scripts = "[" + ["omnium_bootstrap.js", "jetpack_bootstrap.js"]
-        .concat(files).map(function(file) {
+        .concat(filesToInclude).map(function(file) {
             return "data.url(\"" + file + "\")";
         }).join(", ") + "]";
     var main_vars = {
@@ -324,6 +355,7 @@ function main(folder, args) {
     var settings = JSON.parse(Fs.readFileSync(Path.join(__dirname, folder, "build.json")));
     settings.folder = folder;
     settings.minifyJS = args["minify-js"];
+    settings.combineJS = args["combine-js"];
     settings.openInBrowser = args.open;
 
     // Remove the output.
