@@ -40,7 +40,7 @@ var argv = Optimist
 
 var rmTree = function(path) {
     if (!Fs.existsSync(path))
-    	return;
+        return;
  
     var files = Fs.readdirSync(path);
     if (!files.length) {
@@ -60,53 +60,53 @@ var rmTree = function(path) {
 };
 
 function copyFile(from, to) {
-	Fs.writeFileSync(to, Fs.readFileSync(from));
+    Fs.writeFileSync(to, Fs.readFileSync(from));
 }
 
 function template(content, replacements) {
-	return content.replace(/\%\((.*)\)s?/g, function(m, tag) {
-		if (replacements[tag]) {
-			return typeof replacements[tag] != "string" 
-				? JSON.stringify(replacements[tag]) : replacements[tag];
-		}
-		return "";
-	});
+    return content.replace(/\%\((.*)\)s?/g, function(m, tag) {
+        if (replacements[tag]) {
+            return typeof replacements[tag] != "string" 
+                ? JSON.stringify(replacements[tag]) : replacements[tag];
+        }
+        return "";
+    });
 }
 
 function getFiles(settings, target) {
-	var files = []
+    var files = []
     // Use the user specified loading order.
     if (Array.isArray(settings.load_order)) {
-    	settings.load_order.forEach(function(file) {
-    		if (FILETYPE_PATTERN.test(file))
-    			files.push(file);
-    	});
+        settings.load_order.forEach(function(file) {
+            if (FILETYPE_PATTERN.test(file))
+                files.push(file);
+        });
     }
     // If none is specified, do it ourselves.
     else {
         // TODO: This should be sorted per the README.
         Fs.readFirSync(Path.join(folder, "includes")).forEach(function(file) {
-        	if (FILETYPE_PATTERN.test(file))
-    			files.push(file);
+            if (FILETYPE_PATTERN.test(file))
+                files.push(file);
         });
-	}
+    }
 
     // Strip out targeted files for other targets.
     var files_clean = [];
     files.forEach(function(file) {
-    	for (var i = 0, l = TARGETS.length; i < l; ++i) {
-    		if (file.indexOf(TARGETS[i] + "_") === 0 && target != TARGETS[i])
-    			return;
-    	}
-    	files_clean.push(file);
+        for (var i = 0, l = TARGETS.length; i < l; ++i) {
+            if (file.indexOf(TARGETS[i] + "_") === 0 && target != TARGETS[i])
+                return;
+        }
+        files_clean.push(file);
     });
 
     return files_clean;
 }
 
 function greasemonkey(settings) {
-	var target = "greasemonkey";
-	var files = getFiles(settings, target);
+    var target = "greasemonkey";
+    var files = getFiles(settings, target);
 
     var output = Path.join(__dirname, settings.folder, "output", "omnium", settings.folder + ".user.js");
 
@@ -119,9 +119,9 @@ function greasemonkey(settings) {
 
     var included_urls = "";
     if (!Array.isArray(settings.included_urls))
-    	settings.included_urls = [settings.included_urls];
+        settings.included_urls = [settings.included_urls];
     settings.included_urls.forEach(function(url) {
-    	included_urls += "// @include       " + url + "\n"
+        included_urls += "// @include       " + url + "\n"
     });
     settings.includes = included_urls;
 
@@ -130,9 +130,9 @@ function greasemonkey(settings) {
     settings.excludes = excluded_urls;
 
     var header = template(
-    	Fs.readFileSync(Path.join(__dirname, ".builder", target, "header.js"), "utf8"),
-    	settings
-	);    	
+        Fs.readFileSync(Path.join(__dirname, ".builder", target, "header.js"), "utf8"),
+        settings
+    );
 
     console.log("\tAdding files...");
     // Bootstrap file
@@ -142,30 +142,30 @@ function greasemonkey(settings) {
     // User created files
     var data = [header, bootstrap];
     files.forEach(function(file) {
-    	var content = Fs.readFileSync(Path.join(settings.folder, "includes", file), "utf8");
-    	// TODO: compress JS/ CSS
-    	var ext = Path.extname(file);
-    	if (ext == ".css")
-    		content = Sqwish.minify(content);
-    	else if (ext == ".js" && settings.minifyJS)
-    		content = UglifyJS.minify(content, {fromString: true}).code;
-    	data.push(content);
-    	console.log("\t+ " + file);
+        var content = Fs.readFileSync(Path.join(settings.folder, "includes", file), "utf8");
+        // TODO: compress JS/ CSS
+        var ext = Path.extname(file);
+        if (ext == ".css")
+            content = Sqwish.minify(content);
+        else if (ext == ".js" && settings.minifyJS)
+            content = UglifyJS.minify(content, {fromString: true}).code;
+        data.push(content);
+        console.log("\t+ " + file);
     });
 
     // Footer
     data.push(template(
-    	Fs.readFileSync(Path.join(__dirname, ".builder", target, "footer.js"), "utf8"),
-    	settings
-	));
+        Fs.readFileSync(Path.join(__dirname, ".builder", target, "footer.js"), "utf8"),
+        settings
+    ));
 
     console.log("\n\tOutputted to " + output + "\n\n");
     Fs.writeFileSync(output, data.join(""), "utf8");
 }
 
 function jetpack(settings, callback) {
-	var target = "jetpack";
-	console.log("GENERATING " + target.toUpperCase() + " SCRIPT");
+    var target = "jetpack";
+    console.log("GENERATING " + target.toUpperCase() + " SCRIPT");
     console.log("\tCopying scripts...");
 
     // TODO: Make sure folder is always lowercase
@@ -180,16 +180,16 @@ function jetpack(settings, callback) {
 
     // Copy jetpack_wrapper.js
     copyFile(
-    	Path.join(__dirname, ".builder", "jetpack", "wrapper.js"),
-    	Path.join(jp_folder, "data", "jetpack_bootstrap.js")
-	);
+        Path.join(__dirname, ".builder", "jetpack", "wrapper.js"),
+        Path.join(jp_folder, "data", "jetpack_bootstrap.js")
+    );
     console.log("\t+ omnium_bootstrap.js");
 
     // Copy bootstrap.js
     copyFile(
-    	Path.join(__dirname, ".builder", "omnium_bootstrap.js"),
-    	Path.join(jp_folder, "data", "omnium_bootstrap.js")
-	);
+        Path.join(__dirname, ".builder", "omnium_bootstrap.js"),
+        Path.join(jp_folder, "data", "omnium_bootstrap.js")
+    );
     console.log("\t+ omnium_bootstrap.js");
 
     // Copy all scripts to builder/jetpack/___/data
@@ -197,25 +197,25 @@ function jetpack(settings, callback) {
 
     // TODO: Deal with the user using subfolders. Loops and recursion!
     files.forEach(function(file) {
-    	var content = Fs.readFileSync(Path.join(settings.folder, "includes", file), "utf8");
-    	var ext = Path.extname(file);
-    	if (ext == ".css")
-    		content = "omnium_addCss('" + Sqwish.minify(content) + "');";
-    	else if (ext == ".js" && settings.minifyJS)
-    		content = UglifyJS.minify(content, {fromString: true}).code;
-    	Fs.writeFileSync(Path.join(jp_folder, "data", file), content, "utf8");
-    	console.log("\t+ " + file);
+        var content = Fs.readFileSync(Path.join(settings.folder, "includes", file), "utf8");
+        var ext = Path.extname(file);
+        if (ext == ".css")
+            content = "omnium_addCss('" + Sqwish.minify(content) + "');";
+        else if (ext == ".js" && settings.minifyJS)
+            content = UglifyJS.minify(content, {fromString: true}).code;
+        Fs.writeFileSync(Path.join(jp_folder, "data", file), content, "utf8");
+        console.log("\t+ " + file);
     });
 
     // Generate a build file
     console.log("\tCreating basic build files...");
     // TODO: Don't allow quotes in author or description
     var package_json = {
-    	fullName: settings.name,
-    	description: settings.description,
-    	author: settings.author,
-    	version: settings.version,
-    	preferences: settings.preferences
+        fullName: settings.name,
+        description: settings.description,
+        author: settings.author,
+        version: settings.version,
+        preferences: settings.preferences
     };
 
     if (settings.jetpack_id)
@@ -227,15 +227,15 @@ function jetpack(settings, callback) {
     // Create a main.js file
     var included = settings.included_urls;
     if (Array.isArray(included) && included.length == 1)
-    	included = included[0];
+        included = included[0];
     // TODO: Deal with mulitple *'s in included URLs.
     var scripts = "[" + ["omnium_bootstrap.js", "jetpack_bootstrap.js"]
-	    .concat(files).map(function(file) {
-	    	return "data.url(\"" + file + "\")";
-	    }).join(", ") + "]";
+        .concat(files).map(function(file) {
+            return "data.url(\"" + file + "\")";
+        }).join(", ") + "]";
     var main_vars = {
-    	included: included,
-    	scripts: scripts
+        included: included,
+        scripts: scripts
     }
     var main = Fs.readFileSync(Path.join(__dirname, ".builder", "jetpack", "main.js"), "utf8");
     Fs.writeFileSync(Path.join(jp_folder, "lib", "main.js"), template(main, main_vars), "utf8");
@@ -247,51 +247,51 @@ function jetpack(settings, callback) {
     function generate_xpi() {
         // TODO: make this compatible with windows envs
         var child = Exec(
-        	"source bin/activate; cfx xpi --pkgdir='_" + settings.folder + "'",
-        	{ cwd: sdk_dir },
-        	function(err, stdout, stderr) {
-        		if (err)
-        			return callback(err);
+            "source bin/activate; cfx xpi --pkgdir='_" + settings.folder + "'",
+            { cwd: sdk_dir },
+            function(err, stdout, stderr) {
+                if (err)
+                    return callback(err);
 
-        		if (stderr) {
-        			// First time? We need to save the key and do it again.
-        			if (stderr.indexOf("No 'id' in package.json") > -1) {
-        				// We need to save the ID for next time
-			            console.log("\t+ Creating a new key (first run)");
+                if (stderr) {
+                    // First time? We need to save the key and do it again.
+                    if (stderr.indexOf("No 'id' in package.json") > -1) {
+                        // We need to save the ID for next time
+                        console.log("\t+ Creating a new key (first run)");
 
-			            var package_json = JSON.parse(Fs.readFileSync(
-			            	Path.join(sdk_dir, "_" + settings.folder, "package.json")
-		            	));
-		            	var build_file = Path.join(__dirname, settings.folder, "build.json");
-		            	var build_json = JSON.parse(Fs.readFileSync(build_file));
+                        var package_json = JSON.parse(Fs.readFileSync(
+                            Path.join(sdk_dir, "_" + settings.folder, "package.json")
+                        ));
+                        var build_file = Path.join(__dirname, settings.folder, "build.json");
+                        var build_json = JSON.parse(Fs.readFileSync(build_file));
 
-		            	build_json.jetpack_id = package_json.id;
-		            	Fs.writeFileSync(build_file, JSON.stringify(build_json, null, 4), "utf8");
+                        build_json.jetpack_id = package_json.id;
+                        Fs.writeFileSync(build_file, JSON.stringify(build_json, null, 4), "utf8");
 
-			            //TODO: This could get us into an infinite loop..
-			            generate_xpi();
-        			} else {
-        				callback(stderr);
-        			}
-        		} else {
-        			// TODO: This assumes no errors, which is way too optimistic
-		            console.log("\t+ Generated xpi");
+                        //TODO: This could get us into an infinite loop..
+                        generate_xpi();
+                    } else {
+                        callback(stderr);
+                    }
+                } else {
+                    // TODO: This assumes no errors, which is way too optimistic
+                    console.log("\t+ Generated xpi");
 
-		            copyFile(Path.join(sdk_dir, "_" + settings.folder + ".xpi"), output);
-		            console.log("\t+ Copied to " + settings.folder + ".xpi");
+                    copyFile(Path.join(sdk_dir, "_" + settings.folder + ".xpi"), output);
+                    console.log("\t+ Copied to " + settings.folder + ".xpi");
 
-		            console.log("\n\tOutputted to " + output + "!\n\n");
-		            callback();
-        		}
-        	}
-    	);
-	}
+                    console.log("\n\tOutputted to " + output + "!\n\n");
+                    callback();
+                }
+            }
+        );
+    }
 
-	generate_xpi();
+    generate_xpi();
 }
 
 function widget(settings) {
-	console.log("GENERATING SITE WIDGET");
+    console.log("GENERATING SITE WIDGET");
 
     console.log("\tCreating files...");
 
@@ -302,11 +302,11 @@ function widget(settings) {
     console.log("\t+ index.html");
 
     copyFile(Path.join(__dirname, ".builder", "omnium_widget.js"),
-    	Path.join(output, "omnium", "omnium_widget.js"));
+        Path.join(output, "omnium", "omnium_widget.js"));
     console.log("\t+ omnium_widget.js")
 
     copyFile(Path.join(__dirname, ".builder", "omnium_widget.css"),
-    	Path.join(output, "omnium", "omnium_widget.css"));
+        Path.join(output, "omnium", "omnium_widget.css"));
     console.log("\t+ omnium_widget.css");
 
     console.log("\n\tOpening in browser!");
@@ -314,19 +314,19 @@ function widget(settings) {
 }
 
 function main(folder, args) {
-	folder = (folder || "").replace(/^[\/\\]+|[\/\\]+$/, "");
+    folder = (folder || "").replace(/^[\/\\]+|[\/\\]+$/, "");
     if (!folder) {
         console.log(Optimist.help());
         process.exit(1);
     }
 
-	// Load settings file
-	var settings = JSON.parse(Fs.readFileSync(Path.join(__dirname, folder, "build.json")));
-	settings.folder = folder;
+    // Load settings file
+    var settings = JSON.parse(Fs.readFileSync(Path.join(__dirname, folder, "build.json")));
+    settings.folder = folder;
     settings.minifyJS = args["minify-js"];
     settings.openInBrowser = args.open;
 
-	// Remove the output.
+    // Remove the output.
     rmTree(Path.join(__dirname, folder, "output"));
 
     // We may not want to do this...
