@@ -98,17 +98,17 @@ function initPageMod() {
     var workers = %(workers)s;
     if (workers.length) {
         wpgmd = pageMod.PageMod({
-        include: %(included)s,
-        contentScriptWhen: "ready",
-        contentScriptFile: workers,
-        onAttach: function(worker, mod) {
-          worker.on("message", function(msg) {
-            if (mainWorker)
-              mainWorker.postMessage({'cid': msg.cid, 'message': msg.message});
-          });
-          slaveWorker = worker;
-        }
-      });
+          include: %(included)s,
+          contentScriptWhen: "ready",
+          contentScriptFile: workers,
+          onAttach: function(worker, mod) {
+            worker.on("message", function(msg) {
+              if (mainWorker)
+                mainWorker.postMessage({'cid': msg.cid, 'message': msg.message});
+            });
+            slaveWorker = worker;
+          }
+        });
     }
 }
 
