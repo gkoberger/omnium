@@ -244,19 +244,21 @@ function jetpack(settings, callback) {
 
     // Process Worker scripts, if any
     var workers = [];
-    Object.keys(settings.workers).forEach(function(workerFile) {
-        var content = Fs.readFileSync(Path.join(settings.folder, "includes", workerFile), "utf8");
-        // Collect the scripts to embed:
-        var scripts = "";
-        settings.workers[workerFile].forEach(function(workerScript) {
-            scripts += Fs.readFileSync(Path.join(settings.folder, "includes", workerScript), "utf8");
+    if(settings.workers) {
+        Object.keys(settings.workers).forEach(function(workerFile) {
+            var content = Fs.readFileSync(Path.join(settings.folder, "includes", workerFile), "utf8");
+            // Collect the scripts to embed:
+            var scripts = "";
+            settings.workers[workerFile].forEach(function(workerScript) {
+                scripts += Fs.readFileSync(Path.join(settings.folder, "includes", workerScript), "utf8");
+            });
+            content = template(content, { scripts: scripts });
+            if (settings.minifyJS)
+                content = UglifyJS.minify(content, {fromString: true}).code;
+            Fs.writeFileSync(Path.join(jp_folder, "data", workerFile), content, "utf8");
+            workers.push(workerFile);
         });
-        content = template(content, { scripts: scripts });
-        if (settings.minifyJS)
-            content = UglifyJS.minify(content, {fromString: true}).code;
-        Fs.writeFileSync(Path.join(jp_folder, "data", workerFile), content, "utf8");
-        workers.push(workerFile);
-    });
+    }
 
     // Generate a build file
     console.log("\tCreating basic build files...");
