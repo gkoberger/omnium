@@ -6,19 +6,21 @@ Steps to create a cross browser plugin:
   3. Add .js and .css files to /includes/ (Note: if you need them to be loaded
      in a particular order, use `load_order` in build.json)
   4. Run the build command from the main directory.
-     `python builder.py [project name]`
+     `./builder.js [project name]`
 
 Right now it's fragile and a lot won't work- this is only v0.1.
 
-Currently only supports Greasemonkey (Fx3.6) and Jetpack (Fx4). Chrome support coming soon.
+Currently only supports Greasemonkey (Fx3.6) and Jetpack (Fx4+). Chrome support coming soon.
 
 Questions: gkoberger [at] mozilla [dot] com
+           mdeboer [at] mozilla [dot] com
 
 =============================================================================
 
 TROUBLESHOOTING:
 
-- Make sure you have Python 2.5 or 2.6 installed
+- Make sure you have NodeJS 0.6+ installed (available from various package managers or http://nodejs.org/)
+- Run `npm install` after you've cloned omnium
 - Make sure new_project.sh has the proper permissions (`chmod u+x new_project.sh`)
 - Probably only works in OSX right now
 - Make sure you init and update the submodules
