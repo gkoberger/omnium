@@ -1,9 +1,9 @@
-var pageMod = require("page-mod"),
-    ss = require("simple-storage"),
-    prefs = require("simple-prefs"),
-    xhr = require("xhr");
+var pageMod = require("sdk/page-mod"),
+    ss = require("sdk/simple-storage"),
+    prefs = require("sdk/simple-prefs"),
+    xhr = require("sdk/net/xhr");
 
-const data = require("self").data;
+const data = require("sdk/self").data;
 
 // Message Handling
 var mainWorker, slaveWorker;
