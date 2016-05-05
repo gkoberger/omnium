@@ -264,15 +264,16 @@ function jetpack(settings, callback) {
     console.log("\tCreating basic build files...");
     // TODO: Don't allow quotes in author or description
     var package_json = {
-        fullName: settings.name,
+        title: settings.name,
         description: settings.description,
         author: settings.author,
         version: settings.version,
+        main: "lib/main",
         preferences: settings.preferences
     };
 
     if (settings.jetpack_id)
-        package_json.id = settings.jetpack_id;
+        package_json.id = settings.jetpack_id + "@jetpack";
 
     Fs.writeFileSync(Path.join(jp_folder, "package.json"), JSON.stringify(package_json, null, 4), "utf8");
     console.log("\t+ package.json");
@@ -304,8 +305,8 @@ function jetpack(settings, callback) {
     function generate_xpi() {
         // TODO: make this compatible with windows envs
         var child = Exec(
-            "source bin/activate; cfx xpi --pkgdir='_" + settings.folder + "'",
-            { cwd: sdk_dir },
+          "node_modules/jpm/bin/jpm xpi --addon-dir='" + Path.join(sdk_dir, "_" + settings.folder) + "'",
+            { cwd: __dirname },
             function(err, stdout, stderr) {
                 if (err)
                     return callback(err);
@@ -316,7 +317,7 @@ function jetpack(settings, callback) {
                         // We need to save the ID for next time
                         console.log("\t+ Creating a new key (first run)");
 
-                        var package_json = JSON.parse(Fs.readFileSync(
+                        let package_json = JSON.parse(Fs.readFileSync(
                             Path.join(sdk_dir, "_" + settings.folder, "package.json")
                         ));
                         var build_file = Path.join(__dirname, settings.folder, "build.json");
@@ -333,8 +334,8 @@ function jetpack(settings, callback) {
                 } else {
                     // TODO: This assumes no errors, which is way too optimistic
                     console.log("\t+ Generated xpi");
-
-                    copyFile(Path.join(sdk_dir, "_" + settings.folder + ".xpi"), output);
+                    copyFile(Path.join(sdk_dir, "_" + settings.folder,
+                                       package_json.id + "-" + package_json.version + ".xpi"), output);
                     console.log("\t+ Copied to " + settings.folder + ".xpi");
 
                     console.log("\n\tOutputted to " + output + "!\n\n");
